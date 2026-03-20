@@ -26,12 +26,16 @@ It wrote the code, ran away, and now the game is unplayable.
 ## 📝 Document Your Experience
 
 - [ ] Describe the game's purpose.
+The app is a Streamlit-based number guessing game where the player selects a difficulty level and tries to guess a randomly generated number within a limited number of attempts, receiving hints and a score based on performance.
 - [ ] Detail which bugs you found.
+I found several issues including incorrect difficulty ranges, inconsistent naming (“Normal” vs “Medium”), misleading hints in the check_guess function (e.g., saying “Go HIGHER” when the guess was already too high), the secret number sometimes being treated as a string, and problems with the “New Game” reset logic and input handling.
 - [ ] Explain what fixes you applied.
+I refactored all game logic into logic_utils.py for better structure, corrected the high/low comparison logic, standardized difficulty ranges, simplified input parsing, removed the bug where the secret number changed type, and updated tests in test_game_logic.py to properly validate outcomes using pytest.
 
 ## 📸 Demo
 
-- [ ] [Insert a screenshot of your fixed, winning game here]
+![alt text](<Screenshot 2026-03-20 at 3.32.03 PM.png>)
+![alt text](image.png)
 
 ## 🚀 Stretch Features
 
