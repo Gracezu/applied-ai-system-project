@@ -1,7 +1,43 @@
 import random
 import streamlit as st
+import logging
 from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score
 # FIX: Imported logic functions from logic_utils.py instead of duplicating logic
+
+# Proposed Integration for app.py
+def agentic_validator(guess, secret, current_status):
+    """
+    Agent Controller: Central hub that coordinates with logic_utils.py
+    Evaluator Agent: Runs shadow tests comparing against test_game_logic.py criteria
+    Guardrail: Detects mismatches and logs errors
+    """
+    # Logic Engine: Calculate the outcome using check_guess
+    outcome, message = check_guess(guess, secret)
+    
+    # Evaluator Agent: Run shadow tests based on test_game_logic.py criteria
+    expected_outcome, expected_message = None, None
+    
+    if guess == secret:
+        expected_outcome, expected_message = "Win", "🎉 Correct!"
+    elif guess > secret:
+        expected_outcome, expected_message = "Too High", "Too high! Try again."
+    else:
+        expected_outcome, expected_message = "Too Low", "Too low! Try again."
+    
+    # Guardrail: Check for mismatches between actual and expected results
+    if outcome != expected_outcome or message != expected_message:
+        logging.error(f"Logic Drift Detected: Actual '{outcome}' vs Expected '{expected_outcome}'")
+        logging.error(f"Actual message: '{message}' vs Expected message: '{expected_message}'")
+        st.error("System anomaly detected! Logic validation failed.")
+        return "Error", "System validation error - please try again."
+    
+    # Self-Correction Guardrail for win condition
+    if outcome == "Win" and guess != secret:
+        logging.error("Logic Drift: Win reported for incorrect guess.")
+        st.error("System anomaly detected! Invalid win condition.")
+        return "Error", "System anomaly detected."
+        
+    return outcome, message
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
@@ -97,7 +133,8 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
-        outcome, message = check_guess(guess_int, st.session_state.secret)
+        # Agent Controller: Use agentic_validator for verified outcome
+        outcome, message = agentic_validator(guess_int, st.session_state.secret, st.session_state.status)
 
         if show_hint:
             st.warning(message)
